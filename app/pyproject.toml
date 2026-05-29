@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "rag-demo"
+version = "0.0.1a0"
+description = "Rag Demo"
+authors = ["Filip Dimitrov"]
+readme = "README.md"
+repository = "https://github.com/fil82/RAG_Demo"
+packages = [{include = "server"}]
+
+[tool.poetry.dependencies]
+python = "^3.15"
+fastapi = ""
+uvicorn = ""
+python-dotenv = ""
+pydantic = ""
+fastapi-utils = ""
+sentence-transformers
+langchain
+httpx
+
+[tool.poetry.scripts]
+start = "server.main:start"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+httpx = "^0.23.3"
+pytest = "8.1.1"
+pytest-cov = "^4.0.0"
+pytest-asyncio = "^0.20.3"
+
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = [
+  ""
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
