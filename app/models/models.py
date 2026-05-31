@@ -1,6 +1,7 @@
-from typing import List, Optional
 from enum import Enum
-from pydantic import BaseModel, Extra, Field
+from typing import List, Optional
+
+from pydantic import BaseModel
 
 
 class Source(str, Enum):
@@ -26,15 +27,11 @@ class DocumentChunk(BaseModel):
 class DocumentChunkWithScore(DocumentChunk):
     score: Optional[float] = None
 
+
 class Document(BaseModel):
     id: Optional[str] = None
     text: str
     metadata: Optional[DocumentMetadata] = None
-
-
-class DocumentWithChunks(Document):
-    chunks: List[DocumentChunk]
-
 
 
 class Query(BaseModel):
@@ -42,14 +39,7 @@ class Query(BaseModel):
     top_k: Optional[int] = 3
 
 
-class QueryWithEmbedding(Query):
-    embedding: List[float]
-
-
 class QueryResult(BaseModel):
     query: str
     results: List[DocumentChunkWithScore]
-
-
-class ErrorResponse(BaseModel):
-    message: str
+    answer: Optional[str] = None
