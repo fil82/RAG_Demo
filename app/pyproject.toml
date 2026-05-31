@@ -1,42 +1,44 @@
-[tool.poetry]
+[project]
 name = "rag-demo"
-version = "0.0.1a0"
-description = "Rag Demo"
-authors = ["Filip Dimitrov"]
-readme = "README.md"
-repository = "https://github.com/fil82/RAG_Demo"
-packages = [{include = "server"}]
+version = "0.1.0"
+description = "Document Q&A API with vector search (RAG demo)"
+authors = [{ name = "Filip Dimitrov" }]
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "python-dotenv>=1.0",
+    "elasticsearch>=8.12,<9",
+    "langchain-text-splitters>=0.2",
+]
 
-[tool.poetry.dependencies]
-python = "^3.15"
-fastapi = ""
-uvicorn = ""
-python-dotenv = ""
-pydantic = ""
-fastapi-utils = ""
-sentence-transformers
-langchain
-httpx
+[project.optional-dependencies]
+ml = [
+    "sentence-transformers>=2.7",
+]
 
-[tool.poetry.scripts]
-start = "server.main:start"
+[dependency-groups]
+dev = [
+    "pytest>=8.1",
+    "pytest-asyncio>=0.23",
+    "httpx>=0.27",
+    "ruff>=0.4",
+]
 
-[tool.poetry.group.test]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-httpx = "^0.23.3"
-pytest = "8.1.1"
-pytest-cov = "^4.0.0"
-pytest-asyncio = "^0.20.3"
-
+[tool.uv]
+package = false
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-pythonpath = [
-  ""
+pythonpath = ["."]
+testpaths = ["../tests"]
+addopts = "--import-mode=importlib"
+markers = [
+    "acceptance: end-to-end tests that need a running stack (Elasticsearch + API)",
 ]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.ruff]
+line-length = 88
+target-version = "py310"
