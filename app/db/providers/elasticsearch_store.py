@@ -69,7 +69,7 @@ class ElasticsearchVectorStore:
                 "field": "embedding",
                 "query_vector": embedding,
                 "k": top_k,
-                "num_candidates": max(top_k * 10, 50),
+                "num_candidates": top_k * 10,
             },
             source_excludes=["embedding"],
             size=top_k,
@@ -94,18 +94,14 @@ class ElasticsearchVectorStore:
         self, query_text: str, embedding: list[float], top_k: int
     ) -> list[DocumentChunkWithScore]:
         """Combine dense kNN and BM25 rankings via Reciprocal Rank Fusion.
-
-        Runs both searches in a single ``_msearch`` round-trip, then fuses the
-        two ranked lists in Python so neither dense cosine scores nor BM25
-        scores need normalizing (RRF is rank-based).
         """
-        candidates = max(top_k, self._rrf_candidates)
+        candidates = max(top_k, self._rrf_candidates) * 5
         dense_body = {
             "knn": {
                 "field": "embedding",
                 "query_vector": embedding,
                 "k": candidates,
-                "num_candidates": max(candidates * 4, 100),
+                "num_candidates": candidates * 10,
             },
             "size": candidates,
             "_source": {"excludes": ["embedding"]},
@@ -140,7 +136,9 @@ class ElasticsearchVectorStore:
                     self._rrf_k + rank
                 )
                 hits.setdefault(doc_id, hit)
-        ordered = sorted(scores, key=scores.__getitem__, reverse=True)[:top_k]
+        ordered = sorted(
+            scores, key=lambda doc_id: scores[doc_id], reverse=True
+        )[:top_k]
         return [self._to_chunk(hits[doc_id], scores[doc_id]) for doc_id in ordered]
 
     def _mapping(self) -> dict[str, Any]:

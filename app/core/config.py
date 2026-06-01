@@ -35,10 +35,10 @@ class Settings(BaseSettings):
     rrf_k: int = 60
     rrf_candidates: int = 5
 
-    # HNSW index tuning (dense_vector index_options; immutable after creation)
+    # HNSW index tuning
     hnsw_type: str = "int8_hnsw"
-    hnsw_m: int = 16
-    hnsw_ef_construction: int = 100
+    hnsw_m: int = 32
+    hnsw_ef_construction: int = 512
 
     # Observability
     log_level: str = "INFO"
