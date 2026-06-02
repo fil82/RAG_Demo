@@ -1,8 +1,7 @@
 """Embedding service wrapping a sentence-transformers model.
 
-The model is loaded lazily on first use (it is large, ~GBs) so that importing
-this module and starting the API stay cheap. Tests inject a fake ``model`` to
-avoid downloading anything.
+The model is loaded at construction time into ``self.model``. Tests inject a
+fake ``model`` to avoid downloading anything.
 """
 
 import logging
@@ -23,25 +22,21 @@ class EmbeddingService:
         self._model_name = model_name
         self._device = device
         self._normalize = normalize
-        self._model = model
+        self.model = model if model is not None else self._load_model()
 
     def _load_model(self) -> Any:
-        if self._model is None:
-            from sentence_transformers import SentenceTransformer
+        from sentence_transformers import SentenceTransformer
 
-            logger.info("Loading embedding model '%s'...", self._model_name)
-            start = time.perf_counter()
-            self._model = SentenceTransformer(self._model_name, device=self._device)
-            logger.info(
-                "Loaded embedding model in %.1fs", time.perf_counter() - start
-            )
-        return self._model
+        logger.info("Loading embedding model '%s'...", self._model_name)
+        start = time.perf_counter()
+        model = SentenceTransformer(self._model_name, device=self._device)
+        logger.info("Loaded embedding model in %.1fs", time.perf_counter() - start)
+        return model
 
     def embed_texts(self, texts: Sequence[str]) -> list[list[float]]:
         if not texts:
             return []
-        model = self._load_model()
-        vectors = model.encode(
+        vectors = self.model.encode(
             list(texts),
             normalize_embeddings=self._normalize,
             convert_to_numpy=True,
